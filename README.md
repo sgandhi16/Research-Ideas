@@ -38,10 +38,10 @@ Reranking computes a relevance score between the query and each data object, and
 
 ### Directory setup
 First make a dedicated folder "Research Ideas" on your Desktop
-Copy the following files to the folder
-research_rag.py
-cricket_faqs.txt (This is a default file, please replace it with your own)
-requirements_for_project.txt
+Copy the following files to the folder:
+1) research_rag.py
+2) cricket_faqs.txt (This is a default file, please replace it with your own)
+3) requirements_for_project.txt
 
 ### LLM Setup
 Run the following commands to pull models
