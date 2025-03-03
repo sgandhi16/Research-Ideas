@@ -49,7 +49,8 @@ For query- Use llama3.1 (ollama run llama3.1)
 For embedding- Use nomic-embed-text (ollama run nomic-embed-text)
 
 ### Executing the code
-Make a new conda environment with Python version 3.10 (conda create --name myenv python=3.10)
-Activate the newly created environment (conda activate myenv)
-In this environment run the following command (pip install -r requirements_for_project.txt)
-To finally run the code, use the command (streamlit run research_rag.py), this shall re-direct you to the IP address where the code will run.
+1) Make a new conda environment with Python version 3.10 (conda create --name myenv python=3.10)
+2) Activate the newly created environment (conda activate myenv)
+3) In this environment run the following command (pip install -r requirements_for_project.txt)
+4) To finally run the code, use the command (streamlit run research_rag.py), this shall re-direct you to the IP address where the code will run.
+   (Note: Give the entire path to your file while running it)
