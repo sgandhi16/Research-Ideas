@@ -74,5 +74,5 @@ For embedding- Use nomic-embed-text (ollama run nomic-embed-text)
    (Note: Give the entire path to your file while running it)
 
 ### Evaluation of code using PyLint standards
-Pylint evaluates the structure of the code and how is it written, if you want to commit any changes to the code, ensure the score according to pylint standards is 9.5+/10 only then submit a pull request/make a new test branch and commit changes.
+Pylint evaluates the structure of the code and how is it written, if you want to commit any changes to the code, ensure the score according to pylint standards is 9.5+/10 only then submit a pull request/make a new test branch and commit changes. (Current score for code quality is 9.96/10)
 
