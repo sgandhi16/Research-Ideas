@@ -40,15 +40,17 @@ Reranking computes a relevance score between the query and each data object, and
 First make a dedicated folder "Research Ideas" on your Desktop
 And maintain the following directory structure
 
-**Research Ideas**
-|- app.py
-|- cricket_faqs.txt
-|- fact_checker.py
-|- file_processor.py
-|- rag_system.py
-|- vectorstore_manager.py
-|- README.md
-|- requirements_for_project.txt
+```
+Research Ideas/
+│── app.py
+│── cricket_faqs.txt
+│── fact_checker.py
+│── file_processor.py
+│── rag_system.py
+│── vectorstore_manager.py
+│── README.md
+│── requirements_for_project.txt
+```
 
 ### About the files
 1) app.py : Has the main application module
