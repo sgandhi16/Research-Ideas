@@ -38,11 +38,27 @@ Reranking computes a relevance score between the query and each data object, and
 
 ### Directory setup
 First make a dedicated folder "Research Ideas" on your Desktop
-Copy the following files to the folder:
-1) research_rag.py
-2) cricket_faqs.txt (This is a default file, please replace it with your own)
-3) requirements_for_project.txt
+And maintain the following directory structure
 
+**Research Ideas**
+|- app.py
+|- cricket_faqs.txt
+|- fact_checker.py
+|- file_processor.py
+|- rag_system.py
+|- vectorstore_manager.py
+|- README.md
+|- requirements_for_project.txt
+
+### About the files
+1) app.py : Has the main application module
+2) fact_checker.py : This code implements the logic of fact chceking using an instance of an LLM
+3) rag_system.py : Module where Retrieval Augmented Generation is implemented
+4) vectorstore_manager.py : Module where the vectorstore is initialised and the ingestion logic is written
+5) README.md : General overview of the project
+6) requirements_for_project.txt : File which has all the necessary dependencies for Python
+7) cricket_faqs.txt : This is the customisable faqs file
+   
 ### LLM Setup
 Run the following commands to pull models
 For query- Use llama3.1 (ollama run llama3.1)
@@ -52,5 +68,9 @@ For embedding- Use nomic-embed-text (ollama run nomic-embed-text)
 1) Make a new conda environment with Python version 3.10 (conda create --name myenv python=3.10)
 2) Activate the newly created environment (conda activate myenv)
 3) In this environment run the following command (pip install -r requirements_for_project.txt)
-4) To finally run the code, use the command (streamlit run research_rag.py), this shall re-direct you to the IP address where the code will run.
+4) To finally run the code, use the command (streamlit run app.py), this shall re-direct you to the IP address where the code will run.
    (Note: Give the entire path to your file while running it)
+
+### Evaluation of code using PyLint standards
+Pylint evaluates the structure of the code and how is it written, if you want to commit any changes to the code, ensure the score according to pylint standards is 9.5+/10 only then submit a pull request/make a new test branch and commit changes.
+
