@@ -1,3 +1,5 @@
+%%writefile app.py
+# Import req libraries and frameworks
 import os
 import tempfile
 import pandas as pd
@@ -14,6 +16,7 @@ from unstructured.partition.docx import partition_docx
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.prompts import ChatPromptTemplate
+from langchain.prompts import PromptTemplate
 from io import BytesIO
 from typing import List, Set, Dict, Tuple, Any
 from sentence_transformers import SentenceTransformer, util
@@ -30,7 +33,7 @@ load_dotenv()
 PERSISTENCE_DIR = Path("./demostore")
 VECTORSTORE_PATH = PERSISTENCE_DIR / "faiss_index"
 PROCESSED_FILES_PATH = PERSISTENCE_DIR / "processed_files.json"
-FILE_PATH = "test_pdf.pdf"  # Default file path
+FILE_PATH = "abc_report.docx"  # file path
 
 # Initialize models only once at the module level
 SENTENCE_TRANSFORMER = SentenceTransformer('all-MiniLM-L6-v2')
@@ -56,6 +59,9 @@ def process_file(file_path):
             paragraph_grouper=group_broken_paragraphs
         )
         texts = [str(element).strip() for element in elements if hasattr(element, 'text') and str(element).strip()]
+        print("\n--- Chunked Texts ---")
+        for idx, text in enumerate(texts):
+            print(f"\n[Chunk {idx+1}]\n{text}\n")
         return [Document(page_content=text, metadata={"source": file_path}) for text in texts]
 
     elif file_extension == 'txt':
@@ -67,6 +73,9 @@ def process_file(file_path):
             max_partition=max_chars
         )
         texts = [str(element).strip() for element in elements if hasattr(element, 'text') and str(element).strip()]
+        print("\n--- Chunked Texts ---")
+        for idx, text in enumerate(texts):
+            print(f"\n[Chunk {idx+1}]\n{text}\n")
         return [Document(page_content=text, metadata={"source": file_path}) for text in texts]
 
     elif file_extension in ['docx', 'doc']:
@@ -82,6 +91,9 @@ def process_file(file_path):
             paragraph_grouper=group_broken_paragraphs
         )
         texts = [str(element).strip() for element in elements if hasattr(element, 'text') and str(element).strip()]
+        print("\n--- Chunked Texts ---")
+        for idx, text in enumerate(texts):
+            print(f"\n[Chunk {idx+1}]\n{text}\n")
         return [Document(page_content=text, metadata={"source": file_path}) for text in texts]
 
     elif file_extension == 'csv':
@@ -220,15 +232,6 @@ def ask_question(question, vectorstore):
     # Reduced number of retrieved documents (from 30 to 15)
     retriever = vectorstore.as_retriever(search_kwargs={"k": 15})
 
-    after_rag_template = """Answer the question based only on the context below:
-    {context}
-
-    Question: {question}
-
-    If the answer isn't in the context, say you don't know.
-    """
-    after_rag_prompt = ChatPromptTemplate.from_template(after_rag_template)
-
     def format_docs(docs):
         return "\n\n".join(doc.page_content for doc in docs)
 
@@ -258,11 +261,48 @@ def ask_question(question, vectorstore):
         print(f"Retrieved {len(docs)} docs in {retrieval_time:.2f}s, reranked in {rerank_time:.2f}s")
         return format_docs(reranked_docs), reranked_docs
 
-    context_str, reranked_docs = retrieve_and_rerank(question)
+    reformulation_prompt = PromptTemplate.from_template("""
+      You are a helpful assistant. Reformulate the user's question to be precise and self-contained.
+      Use the context to resolve any ambiguity.
+
+      ---Context---
+      {context}
+
+      ---Original Question---
+      {question}
+
+      ---Reformulated Question---
+      """)
+
+    docs_for_context = retriever.get_relevant_documents(question)
+    short_context = " ".join([doc.page_content[:200] for doc in docs_for_context[:2]])
+
+    reformulated_question = llm.invoke(reformulation_prompt.format(
+        question=question,
+        context=short_context
+    ))
+    print(f"\n Reformulated Question: {reformulated_question}")
+    context_str, reranked_docs = retrieve_and_rerank(reformulated_question)
 
     if not context_str:
         return "I couldn't find relevant information to answer your question.", 0, "No context available", []
 
+    after_rag_template = """
+    You are an intelligent assistant. Use the context provided below to answer the question.
+    If the question requires calculations or basic arithmetic, solve it step by step before answering.
+
+    Context:
+    {context}
+
+    Question:
+    {reformulated_question}
+
+    Answer:
+
+    If the answer isn't in the context, say you don't know.
+
+    """
+    after_rag_prompt = ChatPromptTemplate.from_template(after_rag_template)
     rag_chain = (
         after_rag_prompt
         | llm
@@ -273,7 +313,7 @@ def ask_question(question, vectorstore):
     start_time = time.time()
     llm_response = rag_chain.invoke({
         "context": context_str,
-        "question": question
+        "reformulated_question": reformulated_question
     })
     llm_time = time.time() - start_time
     print(f"LLM response generated in {llm_time:.2f}s")
